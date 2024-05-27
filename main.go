@@ -1,6 +1,7 @@
 package main
 
 import (
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"judger/language"
@@ -8,6 +9,7 @@ import (
 	"log"
 	"os"
 
+	_ "github.com/go-sql-driver/mysql"
 	amqp "github.com/rabbitmq/amqp091-go"
 	"gopkg.in/yaml.v3"
 )
@@ -78,16 +80,19 @@ func main() {
 	go func() {
 		log.Printf("Ready to Receive message...")
 		for msg := range rcv_msgs {
+
 			// rabbitMQ에 있는 메시지의 JSON 부분을 parse하여 코드로 저장하는 함수
-			requestID := codeExtract(msg.Body, filepath)
+			requestID, codeLang := codeExtract(msg.Body, filepath)
 			log.Println(requestID)
 
 			// 읽어온 main파일을 실행시킨 후, result를 저장하는 부분
 			//기존 judger의 main.go code
 
+			// codeLang에 맞는 yaml 파일 read?
 			if language, err := readLanguageFile("./languages/sample.yaml"); err != nil {
 				fmt.Println(err)
 			} else {
+				//
 				fmt.Println("language", *language)
 
 				res := sandbox.RunSandbox(sandbox.SandboxConfig{
@@ -112,11 +117,14 @@ func main() {
 				})
 
 				fmt.Println("execute:", res)
-				// TODO : res값을 request_id값과 함께 DB에 저장
-				// 원격 서버에서 DB를 여는 방법을 찾지 못한 상태
-			}
 
-			//
+				// code를 실행한 결과를 DB에 반영
+				// 만약 컴파일 에러 또는 런타임 에러가 발생한 경우 그 에러값이 /test/error.txt에 저장되는데, error case를 구별하는 방법을 찾지 못한 상태
+				// TODO : error case 판별법을 알게된 후, error.txt파일의 값을 읽어와서 DB에 requestID와 codeLang string과 함께 올리기
+				// 현재는 정상적으로 실행된 코드의 결과값만 반영할 수 있음
+				WriteDB(requestID, res.Msg, codeLang)
+
+			}
 		}
 	}()
 
@@ -125,8 +133,10 @@ func main() {
 
 }
 
-// JSON으로 parse 후 코드를 path에 저장하는 함수
-func codeExtract(json_msg []byte, path string) string {
+// rabbitMQ에서 받아온 메시지를 JSON 형식으로 파싱하고
+// 파싱한 내용을 바탕으로 소스코드 파일을 저장하는 함수
+// return : request_id, language
+func codeExtract(json_msg []byte, path string) (string, string) {
 	var message Message
 
 	fmt.Printf("json_msg : %s\n", json_msg)
@@ -167,7 +177,7 @@ func codeExtract(json_msg []byte, path string) string {
 	fmt.Println("Code saved successfully.")
 
 	// req ID 리턴
-	return Reqid
+	return Reqid, codeValue
 }
 
 func readLanguageFile(path string) (*language.Language, error) {
@@ -187,4 +197,40 @@ func readLanguageFile(path string) (*language.Language, error) {
 	}
 
 	return &config.Language, nil
+}
+
+// 원격 MySQL에 접속하여 코드 실행 결과를 데이터로 저장하는 함수
+func WriteDB(req_id string, res string, lang string) {
+	// MySQL cc_schema에 연결하는 dsn 작성
+	dsn := "root:MYSQL_ROOT_PASSWORD_EXAMPLE@tcp(119.69.22.170:19286)/cc_schema"
+
+	// Connect DB(MySQL)
+	db, err := sql.Open("mysql", dsn)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Close()
+
+	// DB 유효성 확인
+	err = db.Ping()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Println("Successfully connected to MySQL database!")
+
+	// INSERT 쿼리를 실행합니다.
+	insertQuery := `INSERT INTO submissions_submission (request_id, code, language) VALUES (?, ?, ?)`
+	result, err := db.Exec(insertQuery, req_id, res, lang)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// 삽입된 레코드의 ID를 가져옵니다.
+	lastInsertId, err := result.LastInsertId()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Printf("Inserted record ID: %d\n", lastInsertId)
 }
