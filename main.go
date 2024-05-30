@@ -101,7 +101,7 @@ func main() {
 			case "python":
 				lang_file = "./languages/python.yaml"
 			case "c++":
-				lang_file = "./languages/cpp.yaml"
+				lang_file = "./languages/sample.yaml"
 			case "c":
 				lang_file = "./languages/c.yaml"
 			default:
@@ -125,8 +125,6 @@ func main() {
 
 				fmt.Println("compile:\n", res)
 
-				fmt.Println("language:\n", *language)
-
 				res = sandbox.RunSandbox(sandbox.SandboxConfig{
 					Target:    language.Execute,
 					MemLimit:  268435456,
@@ -144,10 +142,10 @@ func main() {
 				// 현재는 정상적으로 실행된 코드의 결과값만 반영할 수 있음
 				WriteDB(requestID, codeLang)
 
-				err := os.RemoveAll(filepath)
-				if err != nil {
-					log.Fatalf("fail to delete directory: %s", err)
-				}
+				// err := os.RemoveAll(filepath)
+				// if err != nil {
+				// 	log.Fatalf("fail to delete directory: %s", err)
+				// }
 
 			}
 		}
@@ -210,7 +208,7 @@ func codeExtract(json_msg []byte, path string) (string, string) {
 	fmt.Println("Code saved successfully.")
 
 	// req ID 리턴
-	return Reqid, codeValue
+	return Reqid, codeLang
 }
 
 func readLanguageFile(path string) (*language.Language, error) {
@@ -253,7 +251,7 @@ func WriteDB(req_id string, lang string) {
 	res := string(content)
 
 	// 결과 출력
-	fmt.Println("result of code : \n%s", res)
+	fmt.Println("result of code : \n", res)
 
 	// MySQL cc_schema에 연결하는 dsn 작성
 	dsn := "root:MYSQL_ROOT_PASSWORD_EXAMPLE@tcp(119.69.22.170:19286)/cc_schema"
@@ -285,6 +283,6 @@ func WriteDB(req_id string, lang string) {
 	if err != nil {
 		log.Fatal(err)
 	}
-
+	fmt.Printf("%s, %s, %s\n", req_id, res, lang)
 	fmt.Printf("Inserted record ID: %d\n", lastInsertId)
 }
