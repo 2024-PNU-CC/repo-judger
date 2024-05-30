@@ -77,7 +77,13 @@ func main() {
 
 	// filepath : rabbitMQ로부터 읽어온 코드가 저장될 폴더 경로
 	// judger 프로그램과 같이 ./test 폴더를 이용
+	// test 폴더 : 만들었다가 삭제되는 임시 폴더
 	filepath := "./test"
+	err = os.MkdirAll(filepath, 0755)
+	if err != nil {
+		log.Fatalf("fail to create directory: %s", err)
+	}
+
 	go func() {
 		log.Printf("Ready to Receive message...")
 		for msg := range rcv_msgs {
@@ -86,6 +92,8 @@ func main() {
 			requestID, codeLang := codeExtract(msg.Body, filepath)
 			log.Println(requestID)
 
+			// ************************************ //
+			// 이후 yaml 파일 추가 시 수정해야 하는 part
 			// 읽어온 main파일을 실행시킨 후, result를 저장하는 부분
 			//기존 judger의 main.go code
 			lang_file := "./languages/sample.yaml"
@@ -100,12 +108,12 @@ func main() {
 				fmt.Println("./languages/txt.yaml")
 			}
 
-			// codeLang에 맞는 yaml 파일 read?
+			// codeLang에 맞는 yaml 파일 read
 			if language, err := readLanguageFile(lang_file); err != nil {
 				fmt.Println(err)
 			} else {
 				//
-				fmt.Println("language", *language)
+				fmt.Println("language:\n", *language)
 
 				res := sandbox.RunSandbox(sandbox.SandboxConfig{
 					Target:    language.Compile,
@@ -115,9 +123,9 @@ func main() {
 					ErrorPath: "./test/error.txt",
 				})
 
-				fmt.Println("compile:", res)
+				fmt.Println("compile:\n", res)
 
-				fmt.Println("language", *language)
+				fmt.Println("language:\n", *language)
 
 				res = sandbox.RunSandbox(sandbox.SandboxConfig{
 					Target:    language.Execute,
@@ -128,13 +136,18 @@ func main() {
 					Policy:    &language.Policy,
 				})
 
-				fmt.Println("execute:", res)
+				fmt.Println("execute:\n", res)
 
 				// code를 실행한 결과를 DB에 반영
 				// 만약 컴파일 에러 또는 런타임 에러가 발생한 경우 그 에러값이 /test/error.txt에 저장되는데, error case를 구별하는 방법을 찾지 못한 상태
 				// TODO : error case 판별법을 알게된 후, error.txt파일의 값을 읽어와서 DB에 requestID와 codeLang string과 함께 올리기
 				// 현재는 정상적으로 실행된 코드의 결과값만 반영할 수 있음
 				WriteDB(requestID, codeLang)
+
+				err := os.RemoveAll(filepath)
+				if err != nil {
+					log.Fatalf("fail to delete directory: %s", err)
+				}
 
 			}
 		}
@@ -240,7 +253,7 @@ func WriteDB(req_id string, lang string) {
 	res := string(content)
 
 	// 결과 출력
-	fmt.Println(res)
+	fmt.Println("result of code : \n%s", res)
 
 	// MySQL cc_schema에 연결하는 dsn 작성
 	dsn := "root:MYSQL_ROOT_PASSWORD_EXAMPLE@tcp(119.69.22.170:19286)/cc_schema"
