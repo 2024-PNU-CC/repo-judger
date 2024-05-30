@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"io"
 	"judger/language"
 	"judger/sandbox"
 	"log"
@@ -87,9 +88,20 @@ func main() {
 
 			// 읽어온 main파일을 실행시킨 후, result를 저장하는 부분
 			//기존 judger의 main.go code
+			lang_file := "./languages/sample.yaml"
+			switch codeLang {
+			case "python":
+				lang_file = "./languages/python.yaml"
+			case "c++":
+				lang_file = "./languages/cpp.yaml"
+			case "c":
+				lang_file = "./languages/c.yaml"
+			default:
+				fmt.Println("./languages/txt.yaml")
+			}
 
 			// codeLang에 맞는 yaml 파일 read?
-			if language, err := readLanguageFile("./languages/sample.yaml"); err != nil {
+			if language, err := readLanguageFile(lang_file); err != nil {
 				fmt.Println(err)
 			} else {
 				//
@@ -122,7 +134,7 @@ func main() {
 				// 만약 컴파일 에러 또는 런타임 에러가 발생한 경우 그 에러값이 /test/error.txt에 저장되는데, error case를 구별하는 방법을 찾지 못한 상태
 				// TODO : error case 판별법을 알게된 후, error.txt파일의 값을 읽어와서 DB에 requestID와 codeLang string과 함께 올리기
 				// 현재는 정상적으로 실행된 코드의 결과값만 반영할 수 있음
-				WriteDB(requestID, res.Msg, codeLang)
+				WriteDB(requestID, codeLang)
 
 			}
 		}
@@ -158,8 +170,16 @@ func codeExtract(json_msg []byte, path string) (string, string) {
 	// Language type에 따라 파일 확장자를 다르게 저장할 수 있다
 	// 일단은 python의 경우에만 서술
 	express := "txt"
-	if codeLang == "python" {
+
+	switch codeLang {
+	case "python":
 		express = "py"
+	case "c++":
+		express = "cpp"
+	case "c":
+		express = "c"
+	default:
+		express = "txt"
 	}
 
 	// main 파일 저장 (존재하지 않으면 생성, 존재하면 덮어쓰기)
@@ -200,7 +220,28 @@ func readLanguageFile(path string) (*language.Language, error) {
 }
 
 // 원격 MySQL에 접속하여 코드 실행 결과를 데이터로 저장하는 함수
-func WriteDB(req_id string, res string, lang string) {
+func WriteDB(req_id string, lang string) {
+
+	// Read Output.txt
+
+	// 파일 내용 읽기
+	file, err := os.Open("./test/output.txt")
+	if err != nil {
+		log.Fatalf(" We couldn't open file... : %v", err)
+	}
+	defer file.Close()
+
+	content, err := io.ReadAll(file)
+	if err != nil {
+		log.Fatalf("We couldn't open file... : %v", err)
+	}
+
+	// 바이트 슬라이스를 문자열로 변환
+	res := string(content)
+
+	// 결과 출력
+	fmt.Println(res)
+
 	// MySQL cc_schema에 연결하는 dsn 작성
 	dsn := "root:MYSQL_ROOT_PASSWORD_EXAMPLE@tcp(119.69.22.170:19286)/cc_schema"
 
