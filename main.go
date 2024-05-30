@@ -233,7 +233,7 @@ func WriteDB(req_id string, lang string) {
 
 	content, err := io.ReadAll(file)
 	if err != nil {
-		log.Fatalf("We couldn't open file... : %v", err)
+		log.Fatalf("We couldn't read file... : %v", err)
 	}
 
 	// 바이트 슬라이스를 문자열로 변환
