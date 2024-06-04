@@ -126,7 +126,7 @@ func main() {
 				})
 				fmt.Println("Code_value_1 : \n", res.Code)
 				if res.Code != 0 {
-					export_path = "./test/error.txt"
+					export_path = "./test/compile_error.txt"
 				}
 
 				fmt.Println("compile:\n", res)
@@ -142,7 +142,7 @@ func main() {
 				fmt.Println("execute:\n", res)
 				fmt.Println("Code_value_2 : \n", res.Code)
 				if res.Code != 0 {
-					export_path = "./test/error.txt"
+					export_path = "./test/compile_error.txt"
 				}
 
 				// code를 실행한 결과를 DB에 반영
