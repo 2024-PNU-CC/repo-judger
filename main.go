@@ -107,7 +107,6 @@ func main() {
 			default:
 				fmt.Println("./languages/txt.yaml")
 			}
-
 			export_path := "./test/output.txt"
 
 			// codeLang에 맞는 yaml 파일 read
@@ -149,7 +148,7 @@ func main() {
 				// 만약 컴파일 에러 또는 런타임 에러가 발생한 경우 그 에러값이 /test/error.txt에 저장되는데, error case를 구별하는 방법을 찾지 못한 상태
 				// TODO : error case 판별법을 알게된 후, error.txt파일의 값을 읽어와서 DB에 requestID와 codeLang string과 함께 올리기
 				// 현재는 정상적으로 실행된 코드의 결과값만 반영할 수 있음
-				WriteDB(requestID, codeLang, export_path)
+				WriteDB(requestID, export_path)
 
 				// err := os.RemoveAll(filepath)
 				// if err != nil {
@@ -241,7 +240,7 @@ func readLanguageFile(path string) (*language.Language, error) {
 }
 
 // 원격 MySQL에 접속하여 코드 실행 결과를 데이터로 저장하는 함수
-func WriteDB(req_id string, lang string, path string) {
+func WriteDB(req_id string, path string) {
 
 	// Read Output.txt
 	// error  -> ./test/error.txt
@@ -283,8 +282,8 @@ func WriteDB(req_id string, lang string, path string) {
 	fmt.Println("Successfully connected to MySQL database!")
 
 	// INSERT 쿼리를 실행
-	insertQuery := `INSERT INTO submissions_submission (request_id, code, language) VALUES (?, ?, ?)`
-	result, err := db.Exec(insertQuery, req_id, res, lang)
+	insertQuery := `INSERT INTO submissions_coderesult (request_id, result) VALUES (?, ?)`
+	result, err := db.Exec(insertQuery, req_id, res)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -294,6 +293,6 @@ func WriteDB(req_id string, lang string, path string) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Printf("%s, %s, %s\n", req_id, res, lang)
+	fmt.Printf("%s, %s, %s\n", req_id, res)
 	fmt.Printf("Inserted record ID: %d\n", lastInsertId)
 }
