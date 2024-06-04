@@ -122,6 +122,7 @@ func main() {
 					MaxOutput: -1,
 					ErrorPath: "./test/error.txt",
 				})
+				fmt.Println("Code_value_1 : \n", res.Code)
 
 				fmt.Println("compile:\n", res)
 
@@ -135,6 +136,7 @@ func main() {
 				})
 
 				fmt.Println("execute:\n", res)
+				fmt.Println("Code_value_2 : \n", res.Code)
 
 				// code를 실행한 결과를 DB에 반영
 				// 만약 컴파일 에러 또는 런타임 에러가 발생한 경우 그 에러값이 /test/error.txt에 저장되는데, error case를 구별하는 방법을 찾지 못한 상태
@@ -271,14 +273,14 @@ func WriteDB(req_id string, lang string) {
 
 	fmt.Println("Successfully connected to MySQL database!")
 
-	// INSERT 쿼리를 실행합니다.
+	// INSERT 쿼리를 실행
 	insertQuery := `INSERT INTO submissions_submission (request_id, code, language) VALUES (?, ?, ?)`
 	result, err := db.Exec(insertQuery, req_id, res, lang)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	// 삽입된 레코드의 ID를 가져옵니다.
+	// Debug용
 	lastInsertId, err := result.LastInsertId()
 	if err != nil {
 		log.Fatal(err)
