@@ -75,11 +75,6 @@ func main() {
 	// go func()로 작성되어 있어 interrupt를 걸거나 에러가 발생하기 전까진 계속 실행됨
 	// 필요에 따라 한 번만 실행되도록 설정할 수 있음
 
-	// filepath : rabbitMQ로부터 읽어온 코드가 저장될 폴더 경로
-	// judger 프로그램과 같이 ./test 폴더를 이용
-	// test 폴더 : 만들었다가 삭제되는 임시 폴더
-	filepath := "./test"
-	err = os.MkdirAll(filepath, 0755)
 	if err != nil {
 		log.Fatalf("fail to create directory: %s", err)
 	}
@@ -87,6 +82,12 @@ func main() {
 	go func() {
 		log.Printf("Ready to Receive message...")
 		for msg := range rcv_msgs {
+
+			// filepath : rabbitMQ로부터 읽어온 코드가 저장될 폴더 경로
+			// judger 프로그램과 같이 ./test 폴더를 이용
+			// test 폴더 : 만들었다가 삭제되는 임시 폴더
+			filepath := "./test"
+			err = os.MkdirAll(filepath, 0755)
 
 			// rabbitMQ에 있는 메시지의 JSON 부분을 parse하여 코드로 저장하는 함수
 			requestID, codeLang := codeExtract(msg.Body, filepath)
