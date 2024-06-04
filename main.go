@@ -293,6 +293,6 @@ func WriteDB(req_id string, path string) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Printf("%s, %s, %s\n", req_id, res)
+	fmt.Printf("%s, %s\n", req_id, res)
 	fmt.Printf("Inserted record ID: %d\n", lastInsertId)
 }
