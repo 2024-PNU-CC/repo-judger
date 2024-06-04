@@ -5,7 +5,7 @@ language:
   name: blurfx
   compile:
     pathname: /usr/bin/g++
-    argv: ["-std=c++17", "-O2", "-o", "./test/main", "./test/main.cpp", "-DONLINE_JUDGE", "-DBOJ"]
+    argv: ["-std=c++17", "-O2", "-o", "./test/main", "./test/main.cpp", "-DONLINE_JUDGE", "-DBOJ", "-w"]
     output_path: ./test/compile_output.txt
     error_path: ./test/compile_error.txt
   compile_limit:
