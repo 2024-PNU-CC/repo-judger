@@ -193,7 +193,7 @@ func codeExtract(json_msg []byte, path string) (string, string) {
 	switch codeLang {
 	case "python":
 		express = "py"
-	case "c++":
+	case "cpp":
 		express = "cpp"
 	case "c":
 		express = "c"
