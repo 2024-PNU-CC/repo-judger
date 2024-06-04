@@ -150,10 +150,10 @@ func main() {
 				// 현재는 정상적으로 실행된 코드의 결과값만 반영할 수 있음
 				WriteDB(requestID, export_path)
 
-				// err := os.RemoveAll(filepath)
-				// if err != nil {
-				// 	log.Fatalf("fail to delete directory: %s", err)
-				// }
+				err := os.RemoveAll(filepath)
+				if err != nil {
+					log.Fatalf("fail to delete directory: %s", err)
+				}
 
 			}
 		}
