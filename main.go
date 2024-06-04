@@ -114,8 +114,8 @@ func main() {
 			if language, err := readLanguageFile(lang_file); err != nil {
 				fmt.Println(err)
 			} else {
-				//
-				fmt.Println("language:\n", *language)
+
+				// fmt.Println("language:\n", *language)
 
 				res := sandbox.RunSandbox(sandbox.SandboxConfig{
 					Target:    language.Compile,
