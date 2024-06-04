@@ -100,7 +100,7 @@ func main() {
 			switch codeLang {
 			case "python":
 				//lang_file = "./languages/python.yaml"
-			case "c++":
+			case "cpp":
 				lang_file = "./languages/sample.yaml"
 			case "c":
 				lang_file = "./languages/sample.yaml"
