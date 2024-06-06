@@ -2,15 +2,15 @@
 version: 1
 
 language:
-  name: blurfx
+  name: rust
   compile:
-    pathname: /usr/bin/g++
-    argv: ["-std=c++17", "-O2", "-o", "./test/main", "./test/main.cpp", "-DONLINE_JUDGE", "-DBOJ"]
+    pathname: /home/cloud-cc/.cargo/bin/rustc
+    argv: ["./test/main.rs", "-o", "./test/main"]
     output_path: ./test/compile_output.txt
     error_path: ./test/compile_error.txt
   compile_limit:
     time: 10000 # 10 seconds
-    memory: 268435456 # 256MB
+    memory: 536870912 # 512MB
   execute:
     pathname: ./test/main
     #input_path: ./test/input.txt
