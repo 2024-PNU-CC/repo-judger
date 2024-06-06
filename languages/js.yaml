@@ -1,0 +1,31 @@
+version: 1
+
+language:
+  name: js
+  compile:
+    pathname: /usr/bin/true
+    argv: []
+    output_path: ./test/compile_output.txt
+    error_path: ./test/compile_error.txt
+  compile_limit:
+    time: 5000 # 5 seconds
+    memory: 268435456 # 256MB
+  execute:
+    pathname: /home/cloud-cc/.nvm/versions/node/v20.13.1/bin/node
+    argv: ["./test/main.js"]
+    #input_path: ./test/input.txt
+    output_path: ./test/output.txt
+    error_path: ./test/error.txt
+  time:
+    coef: 1
+    extra: 0
+  memory:
+    coef: 4
+    extra: 0
+  policy:
+    default_action: 0x7fff0000 # allow
+    syscalls:
+    - action: 0 # kill_thread
+      names:
+      - setrlimit
+      - settimeofday
