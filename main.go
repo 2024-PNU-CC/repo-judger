@@ -135,8 +135,8 @@ func main() {
 
 				res = sandbox.RunSandbox(sandbox.SandboxConfig{
 					Target:    language.Execute,
-					MemLimit:  268435456,
-					TimeLimit: 1000,
+					MemLimit:  int64(268435456*language.Memory.Coef + language.Memory.Extra),
+					TimeLimit: int64(1000*language.Time.Coef + language.Time.Extra),
 					MaxOutput: 1024 * 1024,
 					ErrorPath: "./test/error.txt",
 					Policy:    &language.Policy,
