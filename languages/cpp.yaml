@@ -2,7 +2,7 @@
 version: 1
 
 language:
-  name: blurfx
+  name: cpp
   compile:
     pathname: /usr/bin/g++
     argv: ["-std=c++17", "-O2", "-o", "./test/main", "./test/main.cpp", "-DONLINE_JUDGE", "-DBOJ"]
