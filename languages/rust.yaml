@@ -4,7 +4,7 @@ version: 1
 language:
   name: rust
   compile:
-    pathname: /home/cloud-cc/.cargo/bin/rustc
+    pathname: /root/.cargo/bin/rustc
     argv: ["./test/main.rs", "-o", "./test/main"]
     output_path: ./test/compile_output.txt
     error_path: ./test/compile_error.txt
