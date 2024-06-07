@@ -11,7 +11,7 @@ language:
     time: 5000 # 5 seconds
     memory: 268435456 # 256MB
   execute:
-    pathname: /home/cloud-cc/.nvm/versions/node/v20.13.1/bin/node
+    pathname: /usr/local/bin/node
     argv: ["./test/main.js"]
     #input_path: ./test/input.txt
     output_path: ./test/output.txt

@@ -1,0 +1,10 @@
+version: "3.8"
+services:
+    plex:
+        image: judger:0.1
+        container_name: judger
+        restart: always
+        volumes:
+            - '../languages:/app/languages'
+        environment:
+            TZ: 'Asia/Seoul'
